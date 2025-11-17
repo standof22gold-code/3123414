@@ -1,24 +1,27 @@
-FROM python:3.11-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
 # Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
     gcc \
+    g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Копирование файлов
+# Копируем зависимости
 COPY requirements.txt .
+
+# Устанавливаем Python зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Копируем весь проект
 COPY . .
 
-# Создание необходимых директорий
-RUN mkdir -p configs logs storage/cache storage/plugins storage/products plugins
+# Создаем необходимые папки
+RUN mkdir -p logs storage/cache storage/plugins storage/products configs plugins
 
-# Переменные окружения
-ENV PYTHONUNBUFFERED=1
-ENV FPC_IS_RUNNIG_AS_SERVICE=1
+# Открываем порт (если нужен веб-интерфейс)
+EXPOSE 8080
 
-# Запуск
+# Запускаем бота
 CMD ["python", "main.py"]
